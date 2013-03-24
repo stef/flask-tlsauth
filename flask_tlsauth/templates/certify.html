@@ -1,0 +1,7 @@
+You might want to download and install the <a href="/tlsauth/cert/">Root CA cert</a> of this site.<br />'
+<form method="POST" action="/tlsauth/certify/">
+{{ form.hidden_tag() }}
+{{ form.csr.label }} {{ form.csr }}
+<input type="submit" value="Go">
+</form>
+You can always try if it works at <a href="/tlsauth/test/">/tlsauth/test/</a>.

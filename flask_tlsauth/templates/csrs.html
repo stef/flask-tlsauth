@@ -1,0 +1,24 @@
+<table>
+   <thead>
+      <tr>
+         <td>User</td>
+         <td>Email</td>
+         <td>Org</td>
+         <td>Date</td>
+         <td>Sign</td>
+         <td>Reject</td>
+      </tr>
+   </thead>
+   <tbody>
+      {% for item, date, id in certs %}
+      <tr>
+         <td>{{item.CN}}</td>
+         <td>{{item.emailAddress}}</td>
+         <td>{{item.O}}</td>
+         <td>{{date}}</td>
+         <td><a href="/tlsauth/sign/{{id}}">sign</a></td>
+         <td><a href="/tlsauth/reject/{{id}}">reject</a></td>
+      </tr>
+      {% endfor %}
+   </tbody>
+</table>
