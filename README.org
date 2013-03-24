@@ -1,0 +1,84 @@
+* Flask-TLSAuth
+
+Flask-TLSAuth integrates a minimal certificate authority (CA) and
+implements TLS client certificate authentication. It depends on nginx
+for handling the TLS authentication part.
+
+** Installation
+#+BEGIN_SRC sh
+   pip install flask_tlsauth
+#+END_SRC
+   Flask-TLSAuth depends on tlsauth which provides minimal tools to
+   act as a CA. Please follow the "CA and https service install" steps
+   from https://github.com/stef/tlsauth to set up your webserver and CA.
+
+** tlsauth decorator
+Flask-TLSAuth provides a simple decorator to guard your entry points:
+#+BEGIN_SRC python
+from flask import Flask, Response, redirect
+import os
+Flask.secret_key = 'some secret randomness'
+app = Flask(__name__)
+
+# we need a CA
+from tlsauth import CertAuthority
+import flask_tlsauth as tlsauth
+
+# previously we setup up the CA according to the tlsauth doc
+ca=CertAuthority('CA/public/root.pem',
+                 'CA/private/root.pem',
+                 'CA/conf/serial',
+                 'CA/dummy.pem',
+                 'http://www.example.com/crl.pem',
+                 'CA/incoming',
+                 )
+
+adminOs=['CA admins']
+# grants admin access to anyone with a
+# valid cert asserting membership in "CA admins"
+tlsauth.tlsauth_init(app, ca, groups=adminOs)
+
+def unauth():
+    return redirect("/")
+
+@app.route('/hello')
+
+# lets protect this valuable function,
+# redirecting unauthorized visitors to /
+@tlsauth.tlsauth(unauth=unauth, groups=adminOs)
+def hello():
+    return Response("hello world")
+#+END_SRC
+
+** Managing certs
+Flask-TLSAuth provides a few default routes to manage the certs and
+the CA.
+
+*** /tlsauth/register/
+Visitors can register like on a normal site, but when done, they get a
+PKCS12 certificate ready to be saved and imported in all
+browsers. This is totally automatic and there's no check if the
+specified organization is not a privileged one (like "CA admins" in
+the above example). This really provides no security, for bots and
+scripts it's even easier to use these certs than for normal humans.
+Other mechanisms must be deployed to provide meaningful authentication.
+
+*** /tlsauth/certify/
+Visitors can submit their Certificate Signing Request (can be easily
+generated using gencert.sh from tlsauth), which depending on
+configuration either returns automatically a signed certificate (no
+meaningful authentication this way, avoid this!), or it gets stored
+for later approval by the "CA admins".
+
+*** /tlsauth/cert/
+Returns the CA root certificate in PEM format, for import into your browser.
+
+
+*** /tlsauth/csrs/
+Displays a list of incoming CSRs to any certified member of the "CA
+admin" group. The certs can be either rejected or signed, in the later
+case the resulting certificate is sent to the email address of the
+subject.
+
+*** /tlsauth/test/
+Displays whether you are TLS authenticated and what your distinguished name is.
