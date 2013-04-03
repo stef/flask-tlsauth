@@ -47,7 +47,7 @@ def renderUserForm(ca):
             return Response(
                 ca.gencert(str(form.name.data),
                            str(form.email.data),
-                           str(form.org.data))
+                           str(form.org.data)),
                 mimetype="application/x-pkcs12")
         return render_template('register.html', form=form)
     return wrapped
