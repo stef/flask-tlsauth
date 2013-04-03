@@ -17,21 +17,15 @@ Flask-TLSAuth provides a simple decorator to guard your entry points:
 #+BEGIN_SRC python
 from flask import Flask, Response, redirect
 import os
-Flask.secret_key = 'some secret randomness'
 app = Flask(__name__)
+app.secret_key = 'some secret randomness'
 
 # we need a CA
 from tlsauth import CertAuthority
 import flask_tlsauth as tlsauth
 
 # previously we setup up the CA according to the tlsauth doc
-ca=CertAuthority('CA/public/root.pem',
-                 'CA/private/root.pem',
-                 'CA/conf/serial',
-                 'CA/dummy.pem',
-                 'http://www.example.com/crl.pem',
-                 'CA/incoming',
-                 )
+ca=CertAuthority('<path-to-ca>')
 
 adminOs=['CA admins']
 # grants admin access to anyone with a
@@ -72,7 +66,6 @@ for later approval by the "CA admins".
 
 *** /tlsauth/cert/
 Returns the CA root certificate in PEM format, for import into your browser.
-
 
 *** /tlsauth/csrs/
 Displays a list of incoming CSRs to any certified member of the "CA
