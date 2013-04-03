@@ -3,7 +3,7 @@
 from flask import request, Response, render_template, redirect
 from flask.ext.wtf import Form
 from wtforms import TextField, TextAreaField
-from tlsauth import todn, gencert, mailsigned, load
+from tlsauth import todn, mailsigned, load
 import os, datetime, jinja2
 BASEPATH = os.path.dirname(os.path.abspath(__file__))
 
@@ -45,10 +45,10 @@ def renderUserForm(ca):
         form = UserForm()
         if form.validate_on_submit():
             return Response(
-                gencert(str(form.name.data),
-                        str(form.email.data),
-                        str(form.org.data),
-                        ca),
+                ca.gencert(str(form.name.data),
+                           str(form.email.data),
+                           str(form.org.data),
+                           ca),
                 mimetype="application/x-pkcs12")
         return render_template('register.html', form=form)
     return wrapped
@@ -69,7 +69,7 @@ def renderCSRForm(ca, blindsign=False, scrutinizer=None):
                 ca.submit(str(form.csr.data))
                 return Response("Thank you. If all goes well you should soon "
                                 "receive your signed certificate.")
-        return render_template('certify.html', form=form)
+        return render_template('certify.html', form=form, blindsign=blindsign)
     return wrapped
 
 def renderCert(ca):
