@@ -6,7 +6,7 @@ def read(fname):
 
 setup(
     name = "flask_tlsauth",
-    version = "0.1",
+    version = "0.1.3",
     author = "Stefan Marsiske",
     author_email = "s@ctrlc.hu",
     license = "BSD",
